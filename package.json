@@ -1,0 +1,25 @@
+{
+  "name": "server-monitoring-dashboard",
+  "version": "1.0.0",
+  "description": "Real-time server monitoring dashboard built with Node.js, Express, Socket.IO, and Chart.js",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["monitoring", "dashboard", "real-time", "socket.io", "system", "devops"],
+  "author": "Avinash Pandey",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "compression": "^1.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.0",
+    "socket.io": "^4.8.1",
+    "systeminformation": "^5.24.8"
+  }
+}

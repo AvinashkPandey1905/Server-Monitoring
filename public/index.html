@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Real-time server monitoring dashboard with CPU, memory, disk, and network metrics" />
+  <title>Server Monitor | Real-Time Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header id="header">
+    <div class="header-left">
+      <div class="logo">
+        <i class="fas fa-server"></i>
+        <span>ServerMonitor</span>
+      </div>
+      <div class="connection-status" id="connectionStatus">
+        <span class="status-dot"></span>
+        <span class="status-text">Connecting...</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-stat">
+        <i class="fas fa-clock"></i>
+        <span id="uptime">--</span>
+      </div>
+      <div class="header-stat">
+        <i class="fas fa-users"></i>
+        <span id="clients">0</span>
+      </div>
+      <div class="header-stat host-badge">
+        <i class="fas fa-desktop"></i>
+        <span id="hostname">--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard -->
+  <main id="dashboard">
+    <!-- Metric Cards Row -->
+    <section class="metric-cards" id="metricCards">
+      <div class="metric-card" id="cpuCard">
+        <div class="metric-icon cpu"><i class="fas fa-microchip"></i></div>
+        <div class="metric-info">
+          <span class="metric-label">CPU Usage</span>
+          <span class="metric-value" id="cpuValue">0%</span>
+          <div class="metric-bar"><div class="metric-bar-fill cpu-bar" id="cpuBar"></div></div>
+        </div>
+      </div>
+      <div class="metric-card" id="memCard">
+        <div class="metric-icon memory"><i class="fas fa-memory"></i></div>
+        <div class="metric-info">
+          <span class="metric-label">Memory</span>
+          <span class="metric-value" id="memValue">0%</span>
+          <div class="metric-bar"><div class="metric-bar-fill mem-bar" id="memBar"></div></div>
+        </div>
+      </div>
+      <div class="metric-card" id="diskCard">
+        <div class="metric-icon disk"><i class="fas fa-hard-drive"></i></div>
+        <div class="metric-info">
+          <span class="metric-label">Disk Usage</span>
+          <span class="metric-value" id="diskValue">0%</span>
+          <div class="metric-bar"><div class="metric-bar-fill disk-bar" id="diskBar"></div></div>
+        </div>
+      </div>
+      <div class="metric-card" id="netCard">
+        <div class="metric-icon network"><i class="fas fa-network-wired"></i></div>
+        <div class="metric-info">
+          <span class="metric-label">Network</span>
+          <span class="metric-value" id="netValue">0 B/s</span>
+          <div class="metric-sub">
+            <span><i class="fas fa-arrow-down"></i> <span id="netRx">0 B/s</span></span>
+            <span><i class="fas fa-arrow-up"></i> <span id="netTx">0 B/s</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="charts-grid">
+      <div class="chart-container glass-panel">
+        <div class="chart-header">
+          <h3><i class="fas fa-chart-line"></i> CPU History</h3>
+          <span class="chart-badge" id="cpuModel">--</span>
+        </div>
+        <canvas id="cpuChart"></canvas>
+      </div>
+      <div class="chart-container glass-panel">
+        <div class="chart-header">
+          <h3><i class="fas fa-chart-area"></i> Memory Usage</h3>
+          <span class="chart-badge" id="memTotal">--</span>
+        </div>
+        <canvas id="memChart"></canvas>
+      </div>
+      <div class="chart-container glass-panel">
+        <div class="chart-header">
+          <h3><i class="fas fa-chart-bar"></i> Disk Partitions</h3>
+        </div>
+        <canvas id="diskChart"></canvas>
+      </div>
+      <div class="chart-container glass-panel">
+        <div class="chart-header">
+          <h3><i class="fas fa-signal"></i> Network Throughput</h3>
+        </div>
+        <canvas id="netChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Bottom Section: Process Table + Alerts + System Info -->
+    <section class="bottom-grid">
+      <!-- Process Table -->
+      <div class="glass-panel process-panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-list-check"></i> Top Processes</h3>
+          <div class="process-stats">
+            <span>Total: <strong id="procTotal">0</strong></span>
+            <span>Running: <strong id="procRunning">0</strong></span>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table id="processTable">
+            <thead>
+              <tr>
+                <th>PID</th>
+                <th>Name</th>
+                <th>CPU %</th>
+                <th>MEM %</th>
+                <th>State</th>
+                <th>User</th>
+              </tr>
+            </thead>
+            <tbody id="processBody">
+              <tr><td colspan="6" class="empty-state">Waiting for data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Alerts Panel -->
+      <div class="glass-panel alerts-panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-bell"></i> Active Alerts</h3>
+          <span class="alert-count" id="alertCount">0</span>
+        </div>
+        <div class="alerts-list" id="alertsList">
+          <div class="empty-state">
+            <i class="fas fa-check-circle"></i>
+            <p>All systems nominal</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Info -->
+      <div class="glass-panel system-panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-info-circle"></i> System Info</h3>
+        </div>
+        <div class="system-info-grid" id="systemInfo">
+          <div class="info-row"><span class="info-label">OS</span><span class="info-value" id="sysOS">--</span></div>
+          <div class="info-row"><span class="info-label">Kernel</span><span class="info-value" id="sysKernel">--</span></div>
+          <div class="info-row"><span class="info-label">Architecture</span><span class="info-value" id="sysArch">--</span></div>
+          <div class="info-row"><span class="info-label">CPU Model</span><span class="info-value" id="sysCPU">--</span></div>
+          <div class="info-row"><span class="info-label">CPU Cores</span><span class="info-value" id="sysCores">--</span></div>
+          <div class="info-row"><span class="info-label">Total RAM</span><span class="info-value" id="sysRAM">--</span></div>
+          <div class="info-row"><span class="info-label">Platform</span><span class="info-value" id="sysPlatform">--</span></div>
+          <div class="info-row"><span class="info-label">Load Average</span><span class="info-value" id="sysLoad">--</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <p>Server Monitoring Dashboard v1.0.0 &mdash; Built with Node.js, Express, Socket.IO &amp; Chart.js</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/charts.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
